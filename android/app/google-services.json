@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "888418173800",
+    "project_id": "carshare-9026e",
+    "storage_bucket": "carshare-9026e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:888418173800:android:28bb296c7b1214212d0cdd",
+        "android_client_info": {
+          "package_name": "com.carshare.tunisie.carshare_tunisie"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqiaRDwlHdtQztF9Jghjqfru5RYB6T1Lg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
