@@ -1,32 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+import 'config/theme.dart';
+import 'providers/auth_provider.dart';
+import 'providers/user_provider.dart';
+import 'providers/ride_provider.dart';
+import 'providers/booking_provider.dart';
+import 'providers/wallet_provider.dart';
+import 'providers/vehicle_provider.dart';
+import 'providers/group_provider.dart';
+import 'providers/chat_provider.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/auth/register_screen.dart';
+import 'screens/auth/forgot_password_screen.dart';
+import 'screens/auth/role_selection_screen.dart';
+import 'screens/dashboard/dashboard_screen.dart';
 
-import 'firebase_options.dart';
-import 'router/app_router.dart';
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  runApp(const MyApp());
+void main() {
+  runApp(const CarShareTunisie());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class CarShareTunisie extends StatelessWidget {
+  const CarShareTunisie({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final theme = ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2563EB)),
-      useMaterial3: true,
-    );
-
-    return MaterialApp.router(
-      title: 'CarShare Tunisie',
-      theme: theme,
-      routerConfig: appRouter,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => RideProvider()),
+        ChangeNotifierProvider(create: (_) => BookingProvider()),
+        ChangeNotifierProvider(create: (_) => WalletProvider()),
+        ChangeNotifierProvider(create: (_) => VehicleProvider()),
+        ChangeNotifierProvider(create: (_) => GroupProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
+      ],
+      child: Consumer<AuthProvider>(
+        builder: (context, authProvider, _) {
+          return MaterialApp(
+            title: 'CarShare Tunisie',
+            theme: AppTheme.lightTheme,
+            debugShowCheckedModeBanner: false,
+            home: authProvider.isAuthenticated 
+                ? const DashboardScreen() 
+                : const LoginScreen(),
+            routes: {
+              '/login': (context) => const LoginScreen(),
+              '/register': (context) => const RegisterScreen(),
+              '/forgot-password': (context) => const ForgotPasswordScreen(),
+              '/role-selection': (context) => const RoleSelectionScreen(),
+              '/dashboard': (context) => const DashboardScreen(),
+            },
+          );
+        },
+      ),
     );
   }
 }
