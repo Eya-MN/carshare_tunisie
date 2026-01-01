@@ -1,8 +1,13 @@
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../screens/history_screen.dart';
-import '../screens/home_screen.dart';
+import '../screens/dashboard_screen.dart';
+import '../screens/requests_screen.dart';
+import '../screens/trips_screen.dart';
+import '../screens/suggestions_screen.dart';
+import '../screens/social_innovation_screen.dart';
+import '../screens/settings_screen.dart';
+import '../screens/groups_screen.dart';
 import '../screens/booking_details_screen.dart';
 import '../screens/payment_screen.dart';
 import '../screens/profile_screen.dart';
@@ -12,6 +17,7 @@ import '../screens/search_results_screen.dart';
 import '../screens/upcoming_rides_screen.dart';
 import '../screens/verification_screen.dart';
 import '../screens/welcome_screen.dart';
+import '../screens/home_screen.dart';
 import 'go_router_refresh_stream.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -43,7 +49,31 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/home',
-      builder: (context, state) => const HomeScreen(),
+      builder: (context, state) => const DashboardScreen(),
+    ),
+    GoRoute(
+      path: '/requests',
+      builder: (context, state) => const RequestsScreen(),
+    ),
+    GoRoute(
+      path: '/trips',
+      builder: (context, state) => const TripsScreen(),
+    ),
+    GoRoute(
+      path: '/suggestions',
+      builder: (context, state) => const SuggestionsScreen(),
+    ),
+    GoRoute(
+      path: '/social-innovation',
+      builder: (context, state) => const SocialInnovationScreen(),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/groups',
+      builder: (context, state) => const GroupsScreen(),
     ),
     GoRoute(
       path: '/search',
@@ -80,7 +110,7 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/history',
-      builder: (context, state) => const HistoryScreen(),
+      builder: (context, state) => const HomeScreen(),
     ),
     GoRoute(
       path: '/profile',

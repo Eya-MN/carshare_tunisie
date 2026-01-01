@@ -79,6 +79,23 @@ class RideService {
     }, SetOptions(merge: true));
   }
 
+  Future<void> updateUserProfile({
+    required User user,
+    required String firstName,
+    required String lastName,
+    required String phone,
+    required String userType,
+  }) {
+    return _users.doc(user.uid).set({
+      'firstName': firstName,
+      'lastName': lastName,
+      'phone': phone,
+      'userType': userType,
+      'displayName': '$firstName $lastName',
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
   Future<DocumentReference<Map<String, dynamic>>> createBooking({
     required String rideId,
     required String userId,

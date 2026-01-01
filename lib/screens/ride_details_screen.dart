@@ -16,6 +16,10 @@ class RideDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Détails du trajet'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
       ),
       body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         stream: _rideService.rideStream(rideId),
@@ -71,12 +75,28 @@ class RideDetailsScreen extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                FilledButton(
-                  onPressed: () => context.go('/payment/$rideId'),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 14),
-                    child: Text('Réserver'),
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => context.pop(),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 14),
+                          child: Text('Retour'),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () => context.go('/payment/$rideId'),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 14),
+                          child: Text('Réserver'),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

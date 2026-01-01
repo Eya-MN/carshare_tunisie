@@ -10,9 +10,9 @@ class BottomNav extends StatelessWidget {
     switch (current) {
       case 'home':
         return 0;
-      case 'rides':
+      case 'requests':
         return 1;
-      case 'history':
+      case 'trips':
         return 2;
       case 'profile':
         return 3;
@@ -31,10 +31,10 @@ class BottomNav extends StatelessWidget {
             context.go('/home');
             return;
           case 1:
-            context.go('/upcoming-rides');
+            context.go('/requests');
             return;
           case 2:
-            context.go('/history');
+            context.go('/trips');
             return;
           case 3:
             context.go('/profile');
@@ -45,16 +45,16 @@ class BottomNav extends StatelessWidget {
       },
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: 'Recherche',
+          icon: Icon(Icons.home),
+          label: 'Accueil',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.message),
+          label: 'Demandes',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.directions_car),
           label: 'Trajets',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.history),
-          label: 'Historique',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),

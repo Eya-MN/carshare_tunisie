@@ -14,7 +14,7 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  int selected = 0;
+  int selected = 3; // Default to cash
   bool loading = false;
 
   Widget _methodTile({
@@ -74,7 +74,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Paiement')),
+      appBar: AppBar(
+        title: const Text('Paiement'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -103,13 +109,74 @@ class _PaymentScreenState extends State<PaymentScreen> {
             _methodTile(
               value: 3,
               title: 'Paiement en Espèces',
-              subtitle: 'Directement au chauffeur',
+              subtitle: 'Directement au chauffeur (recommandé)',
             ),
+            const SizedBox(height: 16),
+            // Payment info section
+            if (selected == 3) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.green.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.green.shade700, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Paiement en espèces directement au chauffeur. Simple et sécurisé.',
+                        style: TextStyle(color: Colors.green.shade700, fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (selected != 3) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning_amber_outlined, color: Colors.orange.shade700, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Frais de transaction: 1.5DT pour les paiements en ligne.',
+                        style: TextStyle(color: Colors.orange.shade700, fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             const Spacer(),
-            FilledButton(
-              onPressed: loading
-                  ? null
-                  : () async {
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: loading ? null : () => context.pop(),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      child: Text('Retour'),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: loading
+                        ? null
+                        : () async {
                       final user = FirebaseAuth.instance.currentUser;
                       if (user == null) {
                         if (!context.mounted) return;
@@ -138,10 +205,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         if (mounted) setState(() => loading = false);
                       }
                     },
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 14),
-                child: Text('Confirmer le paiement'),
-              ),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      child: Text('Confirmer'),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

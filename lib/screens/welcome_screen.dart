@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../services/auth_service.dart';
 import '../services/ride_service.dart';
+import '../services/security_service.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -16,15 +17,25 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
+  final TextEditingController _firstName = TextEditingController();
+  final TextEditingController _lastName = TextEditingController();
+  final TextEditingController _phone = TextEditingController();
+  String _userType = 'passenger'; // 'driver' or 'passenger'
   bool _loading = false;
   String? _error;
   bool _isRegister = false;
+  
+  final AuthService _authService = AuthService();
+  final SecurityService _securityService = SecurityService();
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
     _confirmPassword.dispose();
+    _firstName.dispose();
+    _lastName.dispose();
+    _phone.dispose();
     super.dispose();
   }
 
@@ -35,7 +46,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     });
 
     try {
-      final auth = AuthService();
+      final auth = _authService;
       final rideService = RideService();
 
       if (_isRegister) {
@@ -45,6 +56,25 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         if (_password.text.length < 6) {
           throw Exception('Le mot de passe doit contenir au moins 6 caractères.');
         }
+        if (_firstName.text.trim().isEmpty || _lastName.text.trim().isEmpty) {
+          throw Exception('Veuillez remplir votre nom et prénom.');
+        }
+        if (_phone.text.trim().isEmpty) {
+          throw Exception('Veuillez fournir votre numéro de téléphone.');
+        }
+        if (!_authService.isValidTunisianPhone(_phone.text.trim())) {
+          throw Exception('Veuillez fournir un numéro de téléphone tunisien valide.');
+        }
+        
+        // Sanitize inputs
+        final sanitizedFirstName = _authService.sanitizeInput(_firstName.text.trim());
+        final sanitizedLastName = _authService.sanitizeInput(_lastName.text.trim());
+        final sanitizedPhone = _authService.sanitizeInput(_phone.text.trim());
+        
+        // Update controllers with sanitized data
+        _firstName.text = sanitizedFirstName;
+        _lastName.text = sanitizedLastName;
+        _phone.text = sanitizedPhone;
       }
 
       final email = _email.text.trim();
@@ -55,6 +85,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           : await auth.signInWithEmail(email: email, password: password);
 
       await rideService.ensureUserDoc(user: cred.user!);
+      
+      // Si c'est une inscription, mettre à jour le profil avec les informations supplémentaires
+      if (_isRegister) {
+        await rideService.updateUserProfile(
+          user: cred.user!,
+          firstName: _firstName.text.trim(),
+          lastName: _lastName.text.trim(),
+          phone: _phone.text.trim(),
+          userType: _userType,
+        );
+      }
+      
       await rideService.seedSampleRideIfEmpty(user: cred.user!);
 
       if (!context.mounted) return;
@@ -160,6 +202,48 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             border: OutlineInputBorder(),
                           ),
                         ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _firstName,
+                          decoration: const InputDecoration(
+                            labelText: 'Prénom',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _lastName,
+                          decoration: const InputDecoration(
+                            labelText: 'Nom',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _phone,
+                          keyboardType: TextInputType.phone,
+                          decoration: const InputDecoration(
+                            labelText: 'Téléphone',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        const Text('Type de compte', style: TextStyle(fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 8),
+                        SegmentedButton<String>(
+                          segments: const [
+                            ButtonSegment<String>(value: 'passenger', label: Text('Passager')),
+                            ButtonSegment<String>(value: 'driver', label: Text('Conducteur')),
+                          ],
+                          selected: <String>{_userType},
+                          onSelectionChanged: _loading
+                              ? null
+                              : (v) {
+                                  setState(() {
+                                    _userType = v.first;
+                                  });
+                                },
+                        ),
                       ],
                       const SizedBox(height: 16),
                       if (_error != null) ...[
@@ -207,6 +291,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         return "Méthode Email/Mot de passe désactivée dans Firebase. Active-la dans Firebase Console > Authentication > Sign-in method.";
       case 'network-request-failed':
         return 'Problème réseau. Vérifie ta connexion Internet.';
+      case 'account-locked':
+        return 'Ce compte est temporairement verrouillé pour des raisons de sécurité.';
       default:
         return e.message ?? 'Erreur Auth: ${e.code}';
     }
